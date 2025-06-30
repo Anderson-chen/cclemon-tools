@@ -1,37 +1,36 @@
-// This config file is designed to send traces and metrics to the docker
-// compose environment from example/docker-compose.
+// ###############################
+// #### Logging Configuration ####
+// ###############################
 
-logging {
-	level  = "debug"
-	format = "logfmt"
+// Discover Docker containers and extract metadata.
+discovery.docker "linux" {
+  host = "unix:///var/run/docker.sock"
 }
 
-tracing {
-	// Sample all traces. This value should be lower for production configs!
-	sampling_fraction = 1
+// Define a relabeling rule to create a service name from the container name.
+discovery.relabel "logs_integrations_docker" {
+      targets = []
+  
+      rule {
+          source_labels = ["__meta_docker_container_name"]
+          regex = "/(.*)"
+          target_label = "service_name"
+      }
 
-	write_to = [otelcol.exporter.otlp.tempo.input]
+  }
+
+
+// Configure a loki.source.docker component to collect logs from Docker containers.
+loki.source.docker "default" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.docker.linux.targets
+  labels     = {"platform" = "docker"}
+  relabel_rules = discovery.relabel.logs_integrations_docker.rules
+  forward_to = [loki.write.local.receiver]
 }
 
-otelcol.exporter.otlp "tempo" {
-	client {
-		endpoint = "tempo:4317"
-
-		tls {
-			insecure = true
-		}
-	}
-}
-
-prometheus.exporter.unix "default" { /* use defaults */ }
-
-prometheus.scrape "default" {
-	targets    = prometheus.exporter.unix.default.targets
-	forward_to = [prometheus.remote_write.default.receiver]
-}
-
-prometheus.remote_write "default" {
-	endpoint {
-		url = "http://mimir:9009/api/prom/push"
-	}
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
 }
