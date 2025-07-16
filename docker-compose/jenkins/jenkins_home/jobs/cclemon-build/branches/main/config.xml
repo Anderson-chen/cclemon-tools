@@ -1,5 +1,5 @@
 <?xml version='1.1' encoding='UTF-8'?>
-<flow-definition plugin="workflow-job@1537.v66038d35fc76">
+<flow-definition plugin="workflow-job@1540.v295eccc9778f">
   <actions>
     <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@2.2255.v56a_15e805f12"/>
     <org.jenkinsci.plugins.workflow.multibranch.JobPropertyTrackerAction plugin="workflow-multibranch@806.vb_b_688f609ee9">
@@ -32,7 +32,7 @@
               <name>origin</name>
               <refspec>+refs/heads/main:refs/remotes/origin/main</refspec>
               <url>https://github.com/Anderson-chen/cclemon.git</url>
-              <credentialsId>398db9e9-0445-454e-a845-823c66fe5bad</credentialsId>
+              <credentialsId>2b9468f4-a875-412d-9914-044591f0a46f</credentialsId>
             </hudson.plugins.git.UserRemoteConfig>
           </userRemoteConfigs>
           <branches class="singleton-list">
@@ -71,6 +71,7 @@
           <choices>
             <string>cclemon-auth</string>
             <string>cclemon-health</string>
+            <string>cclemon-config-server</string>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>

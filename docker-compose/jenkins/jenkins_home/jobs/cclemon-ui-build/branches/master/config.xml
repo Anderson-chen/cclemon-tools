@@ -27,7 +27,7 @@
               <name>origin</name>
               <refspec>+refs/heads/master:refs/remotes/origin/master</refspec>
               <url>https://github.com/Anderson-chen/cclemon-ui.git</url>
-              <credentialsId>398db9e9-0445-454e-a845-823c66fe5bad</credentialsId>
+              <credentialsId>b8906f1e-7c43-4b3c-bf43-2e658d9f4547</credentialsId>
             </hudson.plugins.git.UserRemoteConfig>
           </userRemoteConfigs>
           <branches class="singleton-list">
