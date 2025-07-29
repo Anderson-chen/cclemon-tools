@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-commander
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-commander
+  template:
+    metadata:
+      labels:
+        app: redis-commander
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-type
+                    operator: In
+                    values:
+                      - redis-node
+      containers:
+        - name: redis-commander
+          image: rediscommander/redis-commander:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: REDIS_HOSTS
+              value: "local:redis-service:6379"

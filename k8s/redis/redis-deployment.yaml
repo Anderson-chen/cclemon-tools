@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-type
+                    operator: In
+                    values:
+                      - redis-node
+      containers:
+        - name: redis
+          image: docker.io/bitnami/redis:8.0
+          ports:
+            - containerPort: 6379
+          env:
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "yes"
+            - name: REDIS_DISABLE_COMMANDS
+              value: "FLUSHDB,FLUSHALL"
+          volumeMounts:
+            - name: redis-storage
+              mountPath: /bitnami/redis/data
+      volumes:
+        - name: redis-storage
+          persistentVolumeClaim:
+            claimName: redis-data-pvc
