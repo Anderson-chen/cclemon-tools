@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-connect
+  namespace: default
+spec:
+  type: ClusterIP  # ✅ 改這裡：只允許內部存取
+  selector:
+    app: kafka-connect
+  ports:
+    - port: 8083
+      targetPort: 8083

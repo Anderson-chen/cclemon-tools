@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-connect
+  namespace: default  # 如有其他 namespace 請修改
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-connect
+  template:
+    metadata:
+      labels:
+        app: kafka-connect
+    spec:
+      containers:
+        - name: kafka-connect
+          image: debezium/connect:2.7.3.Final
+          ports:
+            - containerPort: 8083
+          env:
+            - name: GROUP_ID
+              value: connect-cluster
+            - name: CONFIG_STORAGE_TOPIC
+              value: my_connect_configs
+            - name: OFFSET_STORAGE_TOPIC
+              value: my_connect_offsets
+            - name: BOOTSTRAP_SERVERS
+              value: kafka-0.kafka:9092,kafka-1.kafka:9092,kafka-2.kafka:9092
+            - name: CONNECT_PLUGIN_PATH
+              value: /usr/share/java/kafka-connect
+          volumeMounts:
+            - name: plugin-volume
+              mountPath: /usr/share/java/kafka-connect
+            - name: data-volume
+              mountPath: /data
+      volumes:
+        - name: plugin-volume
+          hostPath:
+            path: /your/host/libs  # ← 可改成 PVC，如果不想綁定 host
+        - name: data-volume
+          hostPath:
+            path: /your/host/data

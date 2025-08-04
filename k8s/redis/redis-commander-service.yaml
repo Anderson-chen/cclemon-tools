@@ -8,5 +8,4 @@ spec:
   ports:
     - port: 8081
       targetPort: 8081
-      nodePort: 30081  # 外部可透過這個 port 存取
-  type: NodePort
+  type: ClusterIP

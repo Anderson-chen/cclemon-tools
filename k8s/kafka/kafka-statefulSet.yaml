@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka
+  namespace: default
+spec:
+  serviceName: "kafka"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      hostname: kafka
+      containers:
+        - name: kafka
+          image: bitnami/kafka:3.9
+          ports:
+            - containerPort: 9092
+            - containerPort: 9094
+          env:
+            - name: KAFKA_KRAFT_CLUSTER_ID
+              value: my-kafka-cluster_id
+            - name: KAFKA_CFG_NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: KAFKA_CFG_PROCESS_ROLES
+              value: controller,broker
+            - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
+              value: 0@kafka-0.kafka:9094,1@kafka-1.kafka:9094,2@kafka-2.kafka:9094
+            - name: KAFKA_CFG_LISTENERS
+              value: INTERNAL://:9092,CONTROLLER://:9094
+            - name: KAFKA_CFG_ADVERTISED_LISTENERS
+              value: INTERNAL://$(POD_NAME).kafka:9092,CONTROLLER://$(POD_NAME).kafka:9094
+            - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
+              value: INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+            - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
+              value: CONTROLLER
+            - name: KAFKA_CFG_INTER_BROKER_LISTENER_NAME
+              value: INTERNAL
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: kafka-data
+              mountPath: /bitnami
+  volumeClaimTemplates:
+    - metadata:
+        name: kafka-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
